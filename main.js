@@ -78,11 +78,12 @@ var game = (function() {
             context.clearRect(0, 0, place.width, place.height)
             canvas.width = canvas.width
             let direction = snake.direction
+            console.log(direction)
             if (direction == 'top') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY + snake.crawlSpeed
+                snake.headY = snake.headY - snake.crawlSpeed
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY + snake.crawlSpeed
+                snake.tailY = snake.headY - snake.crawlSpeed
 
             } else if (direction == 'right') {
                 snake.headX = snake.headX + snake.crawlSpeed
@@ -91,9 +92,9 @@ var game = (function() {
                 snake.tailY = snake.headY
             } else if (direction == 'bottom') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY - snake.crawlSpeed
+                snake.headY = snake.headY + snake.crawlSpeed
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY - snake.crawlSpeed
+                snake.tailY = snake.headY + snake.crawlSpeed
             } else {
                 snake.headX = snake.headX - snake.crawlSpeed
                 snake.headY = snake.headY
