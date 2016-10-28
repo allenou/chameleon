@@ -4,7 +4,7 @@ var game = (function() {
 
     var place = {
         width: 500,
-        height: 400,
+        height: 500,
         backgroundColor: '#000'
     }
 
@@ -18,7 +18,7 @@ var game = (function() {
         tailY: 0,
         direction: '',
         crawlSpeed: 10,
-        state: 2 // 1 is crawl
+        isCrawl:false
     }
     var food = {
         width: '5',
@@ -38,8 +38,7 @@ var game = (function() {
             snake.headY = this.randomCoor().y
 
             //random snake direction
-            let index = Math.round(Math.random() * directionOpts.length)
-            snake.direction = directionOpts[index]
+            snake.direction = directionOpts[Math.round(Math.random() * directionOpts.length)]
                 // init snake length
             let direction = snake.direction
             if (direction == 'top') {
@@ -55,7 +54,7 @@ var game = (function() {
                 snake.tailX = snake.headX + snake.length
                 snake.tailY = snake.headY
             }
-            this.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
+            game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
         },
         randomCoor() {
             let coor = {
@@ -68,17 +67,16 @@ var game = (function() {
             canvas.fillStyle = place.backgroundColor
             context.fillRect(0, 0, place.width, place.height)
             context.lineWidth = snake.width
-            context.strokeStyle = 'red'
+            context.strokeStyle = snake.color
             context.moveTo(headX, headY)
             context.lineTo(tailX, tailY)
             context.stroke()
-
         },
         crawl() {
             context.clearRect(0, 0, place.width, place.height)
             canvas.width = canvas.width
             let direction = snake.direction
-            console.log(direction)
+            console.log('direction:' + direction)
             if (direction == 'top') {
                 snake.headX = snake.headX
                 snake.headY = snake.headY - snake.crawlSpeed
@@ -101,29 +99,22 @@ var game = (function() {
                 snake.tailX = snake.headX - snake.crawlSpeed
                 snake.tailY = snake.headY
             }
-            this.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
-            console.log('snake crawling')
+            game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
         },
         start() {
+            let crawling
             document.addEventListener('keydown', (e) => {
-                if (e.keyCode == 32) {
-                    if (snake.state === 2) {
-                        console.log('game start now')
-                        setInterval(() => {
-                            this.crawl()
-                        }, 1000)
-                        return snake.state = 1
-
+                if (e.keyCode === 32) {
+                    if (snake.isCrawl) {
+                        snake.isCrawl = false
+                        clearInterval(crawling)
                     } else {
-                        clearInterval(snake.state)
-                        console.log('game suspend now')
-                        return snake.state = 2
-
+                        snake.isCrawl = true
+                        crawling = setInterval(this.crawl, 1000)
                     }
                 }
             })
         }
-
     }
 }())
 game.init()
