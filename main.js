@@ -1,14 +1,14 @@
-var game = (function() {
-    var canvas = document.querySelector('#canvas')
-    var context = canvas.getContext('2d')
+let game = (function() {
+    let canvas = document.querySelector('#canvas')
+    let context = canvas.getContext('2d')
 
-    var place = {
+    let place = {
         width: 500,
         height: 500,
         backgroundColor: '#000'
     }
 
-    var snake = {
+    let snake = {
         width: '5',
         length: 50,
         color: '#fff',
@@ -17,15 +17,15 @@ var game = (function() {
         tailX: 0,
         tailY: 0,
         direction: '',
-        crawlSpeed: 10,
+        speed: 250 ,
         isCrawl:false
     }
-    var food = {
+    let food = {
         width: '5',
         length: 10,
         color: '#fff'
     }
-    var directionOpts = ['top', 'right', 'bottom', 'left']
+    let directionOpts = ['top', 'right', 'bottom', 'left']
     return {
         init() {
             // init plce style
@@ -38,7 +38,7 @@ var game = (function() {
             snake.headY = this.randomCoor().y
 
             //random snake direction
-            snake.direction = directionOpts[Math.round(Math.random() * directionOpts.length)]
+            snake.direction = directionOpts[Math.round(Math.abs(Math.random() * directionOpts.length-1))]
                 // init snake length
             let direction = snake.direction
             if (direction == 'top') {
@@ -77,26 +77,27 @@ var game = (function() {
             canvas.width = canvas.width
             let direction = snake.direction
             console.log('direction:' + direction)
+            let distance=10
             if (direction == 'top') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY - snake.crawlSpeed
+                snake.headY = snake.headY - distance
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY - snake.crawlSpeed
+                snake.tailY = snake.headY - distance
 
             } else if (direction == 'right') {
-                snake.headX = snake.headX + snake.crawlSpeed
+                snake.headX = snake.headX + distance
                 snake.headY = snake.headY
-                snake.tailX = snake.headX + snake.crawlSpeed
+                snake.tailX = snake.headX + distance
                 snake.tailY = snake.headY
             } else if (direction == 'bottom') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY + snake.crawlSpeed
+                snake.headY = snake.headY + distance
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY + snake.crawlSpeed
+                snake.tailY = snake.headY + distance
             } else {
-                snake.headX = snake.headX - snake.crawlSpeed
+                snake.headX = snake.headX - distance
                 snake.headY = snake.headY
-                snake.tailX = snake.headX - snake.crawlSpeed
+                snake.tailX = snake.headX - distance
                 snake.tailY = snake.headY
             }
             game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
@@ -110,7 +111,7 @@ var game = (function() {
                         clearInterval(crawling)
                     } else {
                         snake.isCrawl = true
-                        crawling = setInterval(this.crawl, 1000)
+                        crawling = setInterval(this.crawl, snake.speed)
                     }
                 }
             })
