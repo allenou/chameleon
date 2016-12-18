@@ -17,14 +17,15 @@ let game = (function() {
         tailX: 0,
         tailY: 0,
         direction: '',
-        speed: 250 ,
-        isCrawl:false
+        speed: 1,
+        isCrawl: false
     }
     let food = {
         width: '5',
         length: 10,
         color: '#fff'
     }
+    let crawling
     let directionOpts = ['top', 'right', 'bottom', 'left']
     return {
         init() {
@@ -38,7 +39,7 @@ let game = (function() {
             snake.headY = this.randomCoor().y
 
             //random snake direction
-            snake.direction = directionOpts[Math.round(Math.abs(Math.random() * directionOpts.length-1))]
+            snake.direction = directionOpts[Math.round(Math.abs(Math.random() * directionOpts.length - 1))]
                 // init snake length
             let direction = snake.direction
             if (direction == 'top') {
@@ -54,7 +55,10 @@ let game = (function() {
                 snake.tailX = snake.headX + snake.length
                 snake.tailY = snake.headY
             }
+            // console.log('headX:' + snake.headX + 'headY:' + snake.headY + 'tailX:' + snake.tailX + 'tailY:' + snake.tailY)
+
             game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
+
         },
         randomCoor() {
             let coor = {
@@ -77,41 +81,45 @@ let game = (function() {
             canvas.width = canvas.width
             let direction = snake.direction
             console.log('direction:' + direction)
-            let distance=10
+            let speed = snake.speed
             if (direction == 'top') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY - distance
+                snake.headY = snake.headY - speed
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY - distance
+                snake.tailY = snake.headY - speed
 
             } else if (direction == 'right') {
-                snake.headX = snake.headX + distance
+                snake.headX += speed
                 snake.headY = snake.headY
-                snake.tailX = snake.headX + distance
+                snake.tailX += speed
                 snake.tailY = snake.headY
             } else if (direction == 'bottom') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY + distance
+                snake.headY += speed
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY + distance
+                snake.tailY += speed
             } else {
-                snake.headX = snake.headX - distance
+                snake.headX -= speed
                 snake.headY = snake.headY
-                snake.tailX = snake.headX - distance
+                snake.tailX -= speed
                 snake.tailY = snake.headY
             }
+            // console.log('headX:' + snake.headX + 'headY:' + snake.headY + 'tailX:' + snake.tailX + 'tailY:' + snake.tailY)
+
             game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
+            crawling=requestAnimationFrame(game.crawl,canvas)
         },
         start() {
-            let crawling
             document.addEventListener('keydown', (e) => {
+              console.log(snake.isCrawl)
                 if (e.keyCode === 32) {
                     if (snake.isCrawl) {
                         snake.isCrawl = false
-                        clearInterval(crawling)
+                        console.log('cancel')
+                        window.cancelAnimationFrame(crawling);
                     } else {
                         snake.isCrawl = true
-                        crawling = setInterval(this.crawl, snake.speed)
+                        crawling=requestAnimationFrame(game.crawl,canvas)
                     }
                 }
             })
