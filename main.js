@@ -56,9 +56,7 @@ let game = (function() {
                 snake.tailY = snake.headY
             }
             // console.log('headX:' + snake.headX + 'headY:' + snake.headY + 'tailX:' + snake.tailX + 'tailY:' + snake.tailY)
-
             game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
-
         },
         randomCoor() {
             let coor = {
@@ -84,9 +82,9 @@ let game = (function() {
             let speed = snake.speed
             if (direction == 'top') {
                 snake.headX = snake.headX
-                snake.headY = snake.headY - speed
+                snake.headY -= speed
                 snake.tailX = snake.headX
-                snake.tailY = snake.headY - speed
+                snake.tailY -= speed
 
             } else if (direction == 'right') {
                 snake.headX += speed
@@ -105,21 +103,28 @@ let game = (function() {
                 snake.tailY = snake.headY
             }
             // console.log('headX:' + snake.headX + 'headY:' + snake.headY + 'tailX:' + snake.tailX + 'tailY:' + snake.tailY)
-
             game.drawSnake(snake.headX, snake.headY, snake.tailX, snake.tailY)
-            crawling=requestAnimationFrame(game.crawl,canvas)
+            game.collisionDetection()
+            crawling = requestAnimationFrame(game.crawl, canvas)
+        },
+        collisionDetection() {
+            if (snake.headX === 0 || snake.headX === place.width || snake.tailY === 0 || snake.tailY === place.height) {
+                alert('game over')
+                game.init()
+            }
         },
         start() {
             document.addEventListener('keydown', (e) => {
-              console.log(snake.isCrawl)
+                console.log(snake.isCrawl)
                 if (e.keyCode === 32) {
                     if (snake.isCrawl) {
                         snake.isCrawl = false
                         console.log('cancel')
                         window.cancelAnimationFrame(crawling);
+                        console.log(crawling)
                     } else {
                         snake.isCrawl = true
-                        crawling=requestAnimationFrame(game.crawl,canvas)
+                        crawling = requestAnimationFrame(game.crawl, canvas)
                     }
                 }
             })
