@@ -54,18 +54,18 @@ Rect.prototype = {
  * food
  */
 function Food() {
-    let coor = {
-        x: Math.round(Math.random() * mapObj.width),
-        y: Math.round(Math.random() * mapObj.height)
-    }
+    let random = Math.random()
+    let coorX = Math.round(random * mapObj.width)
+    let coorY = Math.round(random * mapObj.height)
+
     let i = 0,
         str = ''
     while (i < 3) {
-        str += Math.floor((Math.random() * 255)).toString(16)
+        str += Math.floor(random * 255).toString(16)
         i++
     }
     foodObj.color = '#' + str
-    this.food = new Rect(coor.x, coor.y, snakeObj.width, snakeObj.height, foodObj.color)
+    this.food = new Rect(coorX, coorY, snakeObj.width, snakeObj.height, foodObj.color)
 }
 Food.prototype = {
     draw() {
