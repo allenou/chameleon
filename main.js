@@ -7,12 +7,10 @@ const mapObj = {
     backgroundColor: '#000'
 }
 const snakeObj = {
-    width: '5',
     length: 7,
     color: '#fff',
     direction: '',
     speed: 1,
-    isCrawl: false,
     width: 10,
     height: 10,
     crawling: false
@@ -20,6 +18,7 @@ const snakeObj = {
 const foodObj = {
     color: ''
 }
+let crawlID
 
 function drawMap() {
     canvas.setAttribute('width', mapObj.width)
@@ -27,9 +26,9 @@ function drawMap() {
     canvas.fillStyle = mapObj.backgroundColor
     context.fillRect(0, 0, mapObj.width, mapObj.height)
 }
-drawMap()
 
-let directionOpts = ['top', 'right', 'bottom', 'left']
+
+const directionOpts = ['top', 'right', 'bottom', 'left']
 
 /**
  * rect
@@ -93,8 +92,8 @@ Snake.prototype = {
         for (let i = 0; i < snakeObj.length; i++) {
             this.snakeRectArray[i].draw()
         }
-        console.log(this.head.x)
-        console.log(this.head.y)
+        console.log('x'+this.head.x)
+        console.log('y'+this.head.y)
     },
     crawl() {
         let rect = new Rect(this.head.x, this.head.y, this.head.w, this.head.h, snakeObj.color)
@@ -111,38 +110,45 @@ Snake.prototype = {
                 this.head.x += this.head.w
                 break
             case 40:
-                this.head.y += this.head.y
+                this.head.y += this.head.h
                 break
             default:
                 break
+        }
+        if (this.head.x >= mapObj.width || this.head.y >= mapObj.height) {
+            console.log('game over')
+            snakeObj.crawling = false
+            cancelAnimationFrame(crawlID)
         }
     }
 }
 const food = new Food()
 const snake = new Snake()
+drawMap()
 food.draw()
 snake.draw()
 
-let crawlID
-
-function crawling() {
+function handleCrawl() {
     context.clearRect(0, 0, mapObj.width, mapObj.height)
     drawMap()
     food.draw()
-    snake.draw()
     snake.crawl()
-    crawlID = requestAnimationFrame(crawling)
+    snake.draw()
+    if (snakeObj.crawling) {
+        requestAnimationFrame(handleCrawl)
+    }
 }
+
 document.addEventListener('keydown', (e) => {
-    if (e.keyCode === 32) {
+    if (e.keyCode == 32) {
         if (snakeObj.crawling) {
+            console.log('stop')
             snakeObj.crawling = false
-            console.log('cancel')
-            window.cancelAnimationFrame(crawlID);
+            cancelAnimationFrame(crawlID)
         } else {
-            console.log('crawling')
             snakeObj.crawling = true
-            requestAnimationFrame(crawling, canvas)
+            console.log('crawling')
+            requestAnimationFrame(handleCrawl)
         }
     }
 })
