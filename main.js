@@ -18,7 +18,7 @@ const snakeObj = {
 const foodObj = {
     color: ''
 }
-let crawlID
+let crawlID, gameOver
 
 function drawMap() {
     canvas.setAttribute('width', mapObj.width)
@@ -92,8 +92,8 @@ Snake.prototype = {
         for (let i = 0; i < snakeObj.length; i++) {
             this.snakeRectArray[i].draw()
         }
-        console.log('x'+this.head.x)
-        console.log('y'+this.head.y)
+        console.log('x' + this.head.x)
+        console.log('y' + this.head.y)
     },
     crawl() {
         let rect = new Rect(this.head.x, this.head.y, this.head.w, this.head.h, snakeObj.color)
@@ -116,17 +116,24 @@ Snake.prototype = {
                 break
         }
         if (this.head.x >= mapObj.width || this.head.y >= mapObj.height) {
-            console.log('game over')
-            snakeObj.crawling = false
-            cancelAnimationFrame(crawlID)
+            gameOver = confirm('game over')
+            if (gameOver) {
+                snakeObj.crawling = false
+                cancelAnimationFrame(crawlID)
+                initGame()
+            }
         }
     }
 }
 const food = new Food()
 const snake = new Snake()
-drawMap()
-food.draw()
-snake.draw()
+
+function initGame() {
+    drawMap()
+    food.draw()
+    snake.draw()
+}
+initGame()
 
 function handleCrawl() {
     context.clearRect(0, 0, mapObj.width, mapObj.height)
@@ -138,9 +145,11 @@ function handleCrawl() {
         requestAnimationFrame(handleCrawl)
     }
 }
-
+/*
+ *listen keyword
+ */
 document.addEventListener('keydown', (e) => {
-    if (e.keyCode == 32) {
+    if (e.keyCode === 32) {
         if (snakeObj.crawling) {
             console.log('stop')
             snakeObj.crawling = false
