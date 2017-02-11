@@ -129,17 +129,14 @@ Snake.prototype = {
         }
     }
 }
+let fps = 30,
+    now, then = Date.now(),
+    interval = 1000 / fps,
+    delta
 
 function handleCrawl() {
-    let fps = 30,
-        now, then = Date.now(),
-        interval = 1000 / fps,
-        delta
-
     if (snakeObj.crawling) {
         requestAnimationFrame(handleCrawl)
-    }
-    return function() {
         now = Date.now();　　
         delta = now - then;
         if (delta > interval) {
