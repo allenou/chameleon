@@ -116,25 +116,19 @@ Snake.prototype = {
                 break
         }
 
-        if (this.head.x >= mapObj.width || this.head.y >= mapObj.height) {
-            gameOver = confirm('game over')
-            if (gameOver) {
-                snakeObj.crawling = false
-                cancelAnimationFrame(crawlID)
-                food.draw()
-            }
+
+        if (this.head.x >= mapObj.width || this.head.x < 0 || this.head.y >= mapObj.height || this.head.y < 0) {
+            // gameOver = confirm('game over')
+            // if (gameOver) {
+            //     snakeObj.crawling = false
+            //     cancelAnimationFrame(crawlID)
+            //     food.draw()
+            // }
+            snakeObj.crawling = false
+            cancelAnimationFrame(crawlID)
         }
     }
 }
-const food = new Food()
-const snake = new Snake()
-
-function initGame() {
-    drawMap()
-    food.draw()
-    snake.draw()
-}
-initGame()
 
 function handleCrawl() {
     context.clearRect(0, 0, mapObj.width, mapObj.height)
@@ -146,6 +140,17 @@ function handleCrawl() {
         requestAnimationFrame(handleCrawl)
     }
 }
+
+
+const food = new Food()
+const snake = new Snake()
+
+function initGame() {
+    drawMap()
+    food.draw()
+    snake.draw()
+}
+initGame()
 /*
  *listen keyword
  */
