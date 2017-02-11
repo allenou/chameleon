@@ -131,16 +131,27 @@ Snake.prototype = {
 }
 
 function handleCrawl() {
-    context.clearRect(0, 0, mapObj.width, mapObj.height)
-    drawMap()
-    food.draw()
-    snake.crawl()
-    snake.draw()
+    let fps = 30,
+        now, then = Date.now(),
+        interval = 1000 / fps,
+        delta
+
     if (snakeObj.crawling) {
         requestAnimationFrame(handleCrawl)
     }
+    return function() {
+        now = Date.now();　　
+        delta = now - then;
+        if (delta > interval) {
+            then = now - (delta % interval);
+            context.clearRect(0, 0, mapObj.width, mapObj.height)
+            drawMap()
+            food.draw()
+            snake.crawl()
+            snake.draw()
+        }
+    }
 }
-
 
 const food = new Food()
 const snake = new Snake()
