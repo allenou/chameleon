@@ -6,6 +6,7 @@ const mapObj = {
     height: 500,
     backgroundColor: '#000'
 }
+
 const snakeObj = {
     length: 7,
     color: '#fff',
@@ -15,10 +16,12 @@ const snakeObj = {
     height: 10,
     crawling: false
 }
+
 const foodObj = {
     color: ''
 }
-let crawlID, gameOver
+
+
 
 function drawMap() {
     canvas.setAttribute('width', mapObj.width)
@@ -26,7 +29,6 @@ function drawMap() {
     canvas.fillStyle = mapObj.backgroundColor
     context.fillRect(0, 0, mapObj.width, mapObj.height)
 }
-
 
 const directionOpts = ['top', 'right', 'bottom', 'left']
 
@@ -40,22 +42,26 @@ function Rect(x, y, w, h, color) {
     this.h = h
     this.color = color
 }
+
 Rect.prototype = {
     draw() {
         context.beginPath();
         context.fillStyle = this.color;
-        context.rect(this.x, this.y, this.w, this.h);
+        context.rect(this.x, this.y, this.w, this.h)
         context.fill();
         context.stroke();
     }
 }
+
 /**
  * food
  */
+let food
+
 function Food() {
-    let random = Math.random()
-    let coorX = Math.round(random * mapObj.width)
-    let coorY = Math.round(random * mapObj.height)
+    let random = Math.round(Math.random())
+    let coorX = random * mapObj.width
+    let coorY = random * mapObj.height
 
     let i = 0,
         str = ''
@@ -63,42 +69,72 @@ function Food() {
         str += Math.floor(random * 255).toString(16)
         i++
     }
+
     foodObj.color = '#' + str
     this.food = new Rect(coorX, coorY, snakeObj.width, snakeObj.height, foodObj.color)
 }
+
 Food.prototype = {
     draw() {
         this.food.draw()
     }
 }
 
+food = new Food()
+
 /**
  * snake
  */
+
+let snake
+let crawlID
+
 function Snake() {
     let snakeRectArray = []
+
     for (let i = 0; i < snakeObj.length; i++) {
         let rect = new Rect(mapObj.width / 2, i * snakeObj.height, snakeObj.width, snakeObj.height, snakeObj.color)
-        // snakeRectArray.push(rect)
-        snakeRectArray.splice(0, 0, rect);
+        snakeRectArray.splice(0, 0, rect); //add from scratch
     }
+
     snakeRectArray[0].color = "red"
     this.head = snakeRectArray[0]
     this.snakeRectArray = snakeRectArray
+
     this.direction = 40 //Init snake crawl direction [up:38 right:39 down:40 left:37]
 }
+
 Snake.prototype = {
     draw() {
+        context.clearRect(0, 0, mapObj.width, mapObj.height)
+        drawMap()
+        food.draw()
+
         for (let i = 0; i < snakeObj.length; i++) {
             this.snakeRectArray[i].draw()
         }
+
         // console.log('x' + this.head.x)
         // console.log('y' + this.head.y)
     },
     crawl() {
+
+        if (this.head.x >= mapObj.width || this.head.x < 0 || this.head.y >= mapObj.height || this.head.y < 0) {
+            snakeObj.crawling = false
+            cancelAnimationFrame(crawlID)
+
+            alert('game over')
+
+            //restart game
+            snake = new Snake()
+            snake.draw()
+            return
+        }
+
         let rect = new Rect(this.head.x, this.head.y, this.head.w, this.head.h, snakeObj.color)
         this.snakeRectArray.splice(1, 0, rect)
         this.snakeRectArray.pop()
+
         switch (this.direction) { //up:38 right:39 down:40 left:37
             case 37:
                 this.head.x -= this.head.w
@@ -112,23 +148,12 @@ Snake.prototype = {
             case 40:
                 this.head.y += this.head.h
                 break
-            default:
-                break
         }
 
-
-        if (this.head.x >= mapObj.width || this.head.x < 0 || this.head.y >= mapObj.height || this.head.y < 0) {
-            // gameOver = confirm('game over')
-            // if (gameOver) {
-            //     snakeObj.crawling = false
-            //     cancelAnimationFrame(crawlID)
-            //     food.draw()
-            // }
-            snakeObj.crawling = false
-            cancelAnimationFrame(crawlID)
-        }
+        snake.draw()
     }
 }
+
 let fps = 30,
     now, then = Date.now(),
     interval = 1000 / fps,
@@ -141,24 +166,17 @@ function handleCrawl() {
         delta = now - then;
         if (delta > interval) {
             then = now - (delta % interval);
-            context.clearRect(0, 0, mapObj.width, mapObj.height)
-            drawMap()
-            food.draw()
             snake.crawl()
-            snake.draw()
         }
     }
 }
 
-const food = new Food()
-const snake = new Snake()
 
-function initGame() {
-    drawMap()
-    food.draw()
-    snake.draw()
-}
-initGame()
+//init game
+snake = new Snake()
+snake.draw()
+
+
 /*
  *listen keyword
  */
@@ -175,6 +193,7 @@ document.addEventListener('keydown', (e) => {
             requestAnimationFrame(handleCrawl)
         }
     }
+
     // control the snake crawl direction
     switch (e.keyCode) {
         //up:38 right:39 down:40 left:37
