@@ -1,19 +1,29 @@
+/**
+ * @method random
+ * @description return a random number
+ * @param {Number} maxVal :max value
+ */
+function random(maxVal) {
+    return Math.ceil(Math.random() * maxVal)
+}
+
 const canvas = document.querySelector('#canvas')
 const context = canvas.getContext('2d')
 
 const mapObj = {
-    width: 500,
-    height: 500,
-    backgroundColor: '#000'
+    width: 1000,
+    height: 800,
+    color: '#fff'
 }
-
+const rectObj = {
+    width: 20,
+    height: 20,
+}
 const snakeObj = {
     length: 7,
-    color: '#fff',
+    color: '#ffffff',
     direction: '',
-    speed: 1,
-    width: 10,
-    height: 10,
+    speed: 4,
     crawling: false
 }
 
@@ -21,16 +31,25 @@ const foodObj = {
     color: ''
 }
 
+const colors = ['#B71C1C', '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1', '#01579B',
+    '#006064', '#004D40', '#1B5E20', '#33691E', '#827717', '#F57F17', '#FF6F00',
+    '#E65100', '#BF360C', '#3E2723', '#212121', '#263238'
+]
+
+const directionOpts = ['top', 'right', 'bottom', 'left']
 
 
+/**
+ * map
+ */
 function drawMap() {
     canvas.setAttribute('width', mapObj.width)
     canvas.setAttribute('height', mapObj.height)
-    canvas.fillStyle = mapObj.backgroundColor
-    context.fillRect(0, 0, mapObj.width, mapObj.height)
+    context.fillStyle = mapObj.color
+    context.fill()
+        // context.fillRect(0, 0, mapObj.width, mapObj.height)
 }
 
-const directionOpts = ['top', 'right', 'bottom', 'left']
 
 /**
  * rect
@@ -59,19 +78,15 @@ Rect.prototype = {
 let food
 
 function Food() {
-    let random = Math.round(Math.random())
-    let coorX = random * mapObj.width
-    let coorY = random * mapObj.height
+    let randomCoorX = random(mapObj.width)
+    let randomCoorY = random(mapObj.height)
+    let randomIndex = random(colors.length)
 
-    let i = 0,
-        str = ''
-    while (i < 3) {
-        str += Math.floor(random * 255).toString(16)
-        i++
-    }
+    foodObj.color = colors[randomIndex] //get food's random color in colors array
 
-    foodObj.color = '#' + str
-    this.food = new Rect(coorX, coorY, snakeObj.width, snakeObj.height, foodObj.color)
+    this.coorX = randomCoorX
+    this.coorY = randomCoorY
+    this.food = new Rect(this.coorX, this.coorY, rectObj.width, rectObj.height, foodObj.color)
 }
 
 Food.prototype = {
@@ -93,11 +108,12 @@ function Snake() {
     let snakeRectArray = []
 
     for (let i = 0; i < snakeObj.length; i++) {
-        let rect = new Rect(mapObj.width / 2, i * snakeObj.height, snakeObj.width, snakeObj.height, snakeObj.color)
+        let rect = new Rect(mapObj.width / 2, i * rectObj.height, rectObj.width, rectObj.height, snakeObj.color)
         snakeRectArray.splice(0, 0, rect); //add from scratch
     }
 
     snakeRectArray[0].color = "red"
+
     this.head = snakeRectArray[0]
     this.snakeRectArray = snakeRectArray
 
@@ -113,9 +129,6 @@ Snake.prototype = {
         for (let i = 0; i < snakeObj.length; i++) {
             this.snakeRectArray[i].draw()
         }
-
-        // console.log('x' + this.head.x)
-        // console.log('y' + this.head.y)
     },
     crawl() {
 
@@ -126,7 +139,9 @@ Snake.prototype = {
             alert('game over')
 
             //restart game
+            food = new Food()
             snake = new Snake()
+            food.draw()
             snake.draw()
             return
         }
@@ -150,24 +165,30 @@ Snake.prototype = {
                 break
         }
 
-        snake.draw()
+        this.draw()
+        this.eat()
+    },
+    eat() {
+        console.log('x' + this.head.x, food.coorX)
+        console.log('y' + this.head.y, food.coorY)
+        if (this.head.x === food.coorX && this.head.y === food.coorY) {
+            alert('eat')
+        }
     }
 }
 
-let fps = 30,
-    now, then = Date.now(),
-    interval = 1000 / fps,
-    delta
+let elapsed, then = 0
+let fpsInterval = 1000 / snakeObj.speed
 
-function handleCrawl() {
+function handleCrawl(now) {
     if (snakeObj.crawling) {
-        requestAnimationFrame(handleCrawl)
         now = Date.now();　　
-        delta = now - then;
-        if (delta > interval) {
-            then = now - (delta % interval);
+        elapsed = now - then
+        if (elapsed > fpsInterval) {
+            then = now - (elapsed % fpsInterval);
             snake.crawl()
         }
+        requestAnimationFrame(handleCrawl)
     }
 }
 
