@@ -20,11 +20,12 @@ const rectObj = {
     height: 20,
 }
 const snakeObj = {
-    length: 7,
-    color: '#ffffff',
+    length: 5,
+    color: '#BF360C',
     direction: '',
     speed: 4,
-    crawling: false
+    crawling: false,
+    eated: false
 }
 
 const foodObj = {
@@ -35,8 +36,6 @@ const colors = ['#B71C1C', '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1'
     '#006064', '#004D40', '#1B5E20', '#33691E', '#827717', '#F57F17', '#FF6F00',
     '#E65100', '#BF360C', '#3E2723', '#212121', '#263238'
 ]
-
-const directionOpts = ['top', 'right', 'bottom', 'left']
 
 
 /**
@@ -131,7 +130,7 @@ Snake.prototype = {
         }
     },
     crawl() {
-
+        // handle game over
         if (this.head.x >= mapObj.width || this.head.x < 0 || this.head.y >= mapObj.height || this.head.y < 0) {
             snakeObj.crawling = false
             cancelAnimationFrame(crawlID)
@@ -146,13 +145,13 @@ Snake.prototype = {
             return
         }
 
-        snakeObj.color = foodObj.color ? foodObj.color : snakeObj.color
+        snakeObj.color = snakeObj.eated && foodObj.color ? foodObj.color : snakeObj.color
 
         let rect = new Rect(this.head.x, this.head.y, rectObj.width, rectObj.height, snakeObj.color)
         this.snakeRectArray.splice(1, 0, rect)
         this.snakeRectArray.pop()
 
-        switch (this.direction) { //up:38 right:39 down:40 left:37
+        switch (this.direction) { // up:38 right:39 down:40 left:37
             case 37:
                 this.head.x -= this.head.w
                 break
@@ -174,16 +173,14 @@ Snake.prototype = {
         // console.log('x' + this.head.x, food.coorX)
         // console.log('y' + this.head.y, food.coorY)
         if (this.head.x === food.coorX && this.head.y === food.coorY) {
-
+            snakeObj.eated = true
             let rect = new Rect(food.coorX, food.coorY, this.head.w, this.head.h, foodObj.color)
             this.snakeRectArray.push(rect)
 
 
             this.draw()
-
             food = new Food()
             food.draw()
-
         }
     }
 }
@@ -193,7 +190,6 @@ let fpsInterval = 1000 / snakeObj.speed
 
 /**
  * handle crawl
- * @param {*} now 
  */
 function handleCrawl(now) {
     if (snakeObj.crawling) {
@@ -220,38 +216,32 @@ document.addEventListener('keydown', (e) => {
     // control the snake crawl or stop
     if (e.keyCode === 32) {
         if (snakeObj.crawling) {
-            console.log('stop')
             snakeObj.crawling = false
             cancelAnimationFrame(crawlID)
         } else {
             snakeObj.crawling = true
-            console.log('crawling')
             requestAnimationFrame(handleCrawl)
         }
     }
 
     // control the snake crawl direction
+    // up:38 right:39 down:40 left:37
     switch (e.keyCode) {
-        //up:38 right:39 down:40 left:37
         case 37:
-            if (snake.direction !== 39) {
+            if (snake.direction !== 39)
                 snake.direction = 37
-            }
             break
         case 38:
-            if (snake.direction !== 40) {
+            if (snake.direction !== 40)
                 snake.direction = 38
-            }
             break
         case 39:
-            if (snake.direction !== 37) {
+            if (snake.direction !== 37)
                 snake.direction = 39
-            }
             break
         case 40:
-            if (snake.direction !== 38) {
+            if (snake.direction !== 38)
                 snake.direction = 40
-            }
             break
     }
     e.preventDefault()

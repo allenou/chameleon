@@ -21,6 +21,24 @@
         canvas {
             background-color: #fff;
         }
+        
+        #tip {
+            color: #fff;
+        }
+        
+        #tip ul {
+            padding-left: 0;
+        }
+        
+        #tip li {
+            margin-bottom: 8px;
+            list-style: none;
+        }
+        
+        #tip i {
+            padding: 0 4px;
+            font-style: normal;
+        }
     </style>
 
 </head>
@@ -28,6 +46,15 @@
 <body>
     <div id="container">
         <canvas id="canvas"></canvas>
+        <div id="tip">
+            <ul>
+                <li>UP<i>:</i>W</li>
+                <li>RIGHT<i>:</i>D</li>
+                <li>DOWN<i>:</i>S</li>
+                <li>LEFT<i>:</i>A</li>
+                <li>START/PAUSE<i>:</i>SPACE</li>
+            </ul>
+        </div>
     </div>
     <script src="./main.js"></script>
 </body>
