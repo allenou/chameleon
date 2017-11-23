@@ -11,8 +11,8 @@ const canvas = document.querySelector('#canvas')
 const context = canvas.getContext('2d')
 
 const mapObj = {
-    width: 1000,
-    height: 800,
+    width: 800,
+    height: 500,
     color: '#fff'
 }
 const rectObj = {
@@ -47,7 +47,6 @@ function drawMap() {
     canvas.setAttribute('height', mapObj.height)
     context.fillStyle = mapObj.color
     context.fill()
-        // context.fillRect(0, 0, mapObj.width, mapObj.height)
 }
 
 
@@ -68,7 +67,7 @@ Rect.prototype = {
         context.fillStyle = this.color;
         context.rect(this.x, this.y, this.w, this.h)
         context.fill();
-        context.stroke();
+        // context.stroke();
     }
 }
 
@@ -84,8 +83,8 @@ function Food() {
 
     foodObj.color = colors[randomIndex] //get food's random color in colors array
 
-    this.coorX = randomCoorX
-    this.coorY = randomCoorY
+    this.coorX = 500
+    this.coorY = 180
     this.food = new Rect(this.coorX, this.coorY, rectObj.width, rectObj.height, foodObj.color)
 }
 
@@ -126,8 +125,9 @@ Snake.prototype = {
         drawMap()
         food.draw()
 
-        for (let i = 0; i < snakeObj.length; i++) {
-            this.snakeRectArray[i].draw()
+        let snakeRectArray = this.snakeRectArray
+        for (let i = 0; i < snakeRectArray.length; i++) {
+            snakeRectArray[i].draw()
         }
     },
     crawl() {
@@ -146,7 +146,9 @@ Snake.prototype = {
             return
         }
 
-        let rect = new Rect(this.head.x, this.head.y, this.head.w, this.head.h, snakeObj.color)
+        snakeObj.color = foodObj.color ? foodObj.color : snakeObj.color
+
+        let rect = new Rect(this.head.x, this.head.y, rectObj.width, rectObj.height, snakeObj.color)
         this.snakeRectArray.splice(1, 0, rect)
         this.snakeRectArray.pop()
 
@@ -169,10 +171,19 @@ Snake.prototype = {
         this.eat()
     },
     eat() {
-        console.log('x' + this.head.x, food.coorX)
-        console.log('y' + this.head.y, food.coorY)
+        // console.log('x' + this.head.x, food.coorX)
+        // console.log('y' + this.head.y, food.coorY)
         if (this.head.x === food.coorX && this.head.y === food.coorY) {
-            alert('eat')
+
+            let rect = new Rect(food.coorX, food.coorY, this.head.w, this.head.h, foodObj.color)
+            this.snakeRectArray.push(rect)
+
+
+            this.draw()
+
+            food = new Food()
+            food.draw()
+
         }
     }
 }
@@ -180,6 +191,10 @@ Snake.prototype = {
 let elapsed, then = 0
 let fpsInterval = 1000 / snakeObj.speed
 
+/**
+ * handle crawl
+ * @param {*} now 
+ */
 function handleCrawl(now) {
     if (snakeObj.crawling) {
         now = Date.now();　　

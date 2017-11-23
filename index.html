@@ -6,10 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>snake</title>
+    <style>
+        body {
+            background-color: #212121;
+        }
+        
+        #container {
+            width: 800px;
+            height: 500px;
+            margin: auto;
+            padding-top: 50px;
+        }
+        
+        canvas {
+            background-color: #fff;
+        }
+    </style>
+
 </head>
 
 <body>
-    <canvas id="canvas" style="box-shadow: 0px 0px 20px black;"></canvas>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+    </div>
     <script src="./main.js"></script>
 </body>
 
