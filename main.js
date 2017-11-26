@@ -1,12 +1,3 @@
-/**
- * @method random
- * @description return a random number
- * @param {Number} maxVal :max value
- */
-function random(maxVal) {
-    return Math.ceil(Math.random() * maxVal)
-}
-
 const canvas = document.querySelector('#canvas')
 const context = canvas.getContext('2d')
 
@@ -16,12 +7,11 @@ const mapObj = {
     color: '#fff'
 }
 const rectObj = {
-    width: 20,
-    height: 20,
+    size: 20
 }
 const snakeObj = {
     length: 5,
-    color: '#BF360C',
+    color: '#232323',
     direction: '',
     speed: 4,
     crawling: false,
@@ -29,14 +19,34 @@ const snakeObj = {
 }
 
 const foodObj = {
-    color: ''
+    color: '',
+    coorArr: []
 }
 
-const colors = ['#B71C1C', '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1', '#01579B',
-    '#006064', '#004D40', '#1B5E20', '#33691E', '#827717', '#F57F17', '#FF6F00',
-    '#E65100', '#BF360C', '#3E2723', '#212121', '#263238'
-]
 
+const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#009688', '#4caf50', '#ff9800', '#ff5722']
+
+/**
+ * @method random
+ * @description return a random number
+ * @param {Number} maxVal :max value
+ */
+function random(maxVal) {
+    return Math.ceil(Math.random() * maxVal)
+}
+
+/**
+ * @method randomCoor
+ * @description return a random coor
+ * @param {Number} maxVal :max value
+ */
+function randomCoor(maxVal, divisor) {
+    let coorArr = []
+    for (let i = divisor; i < maxVal; i++) {
+        Number.isInteger(i / divisor) && coorArr.push(i)
+    }
+    return coorArr[random(coorArr.length - 1)]
+}
 
 /**
  * map
@@ -76,15 +86,17 @@ Rect.prototype = {
 let food
 
 function Food() {
-    let randomCoorX = random(mapObj.width)
-    let randomCoorY = random(mapObj.height)
-    let randomIndex = random(colors.length)
+    let size = rectObj.size
+    let coorX = randomCoor(mapObj.width, size)
+    let coorY = randomCoor(mapObj.height, size)
 
-    foodObj.color = colors[randomIndex] //get food's random color in colors array
+    let index = random(colors.length)
 
-    this.coorX = 500
-    this.coorY = 180
-    this.food = new Rect(this.coorX, this.coorY, rectObj.width, rectObj.height, foodObj.color)
+    foodObj.color = colors[index] //get food's random color in colors array
+    this.coorX = coorX
+    this.coorY = coorY
+    console.log(coorX, coorY)
+    this.food = new Rect(this.coorX, this.coorY, size, size, foodObj.color)
 }
 
 Food.prototype = {
@@ -106,7 +118,7 @@ function Snake() {
     let snakeRectArray = []
 
     for (let i = 0; i < snakeObj.length; i++) {
-        let rect = new Rect(mapObj.width / 2, i * rectObj.height, rectObj.width, rectObj.height, snakeObj.color)
+        let rect = new Rect(mapObj.width / 2, i * rectObj.size, rectObj.size, rectObj.size, snakeObj.color)
         snakeRectArray.splice(0, 0, rect); //add from scratch
     }
 
@@ -147,7 +159,7 @@ Snake.prototype = {
 
         snakeObj.color = snakeObj.eated && foodObj.color ? foodObj.color : snakeObj.color
 
-        let rect = new Rect(this.head.x, this.head.y, rectObj.width, rectObj.height, snakeObj.color)
+        let rect = new Rect(this.head.x, this.head.y, rectObj.size, rectObj.size, snakeObj.color)
         this.snakeRectArray.splice(1, 0, rect)
         this.snakeRectArray.pop()
 
@@ -170,15 +182,13 @@ Snake.prototype = {
         this.eat()
     },
     eat() {
-        // console.log('x' + this.head.x, food.coorX)
-        // console.log('y' + this.head.y, food.coorY)
         if (this.head.x === food.coorX && this.head.y === food.coorY) {
             snakeObj.eated = true
             let rect = new Rect(food.coorX, food.coorY, this.head.w, this.head.h, foodObj.color)
             this.snakeRectArray.push(rect)
 
 
-            this.draw()
+            this.crawl()
             food = new Food()
             food.draw()
         }
