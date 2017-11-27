@@ -90,12 +90,10 @@ function Food() {
     let coorX = randomCoor(mapObj.width, size)
     let coorY = randomCoor(mapObj.height, size)
 
-    let index = random(colors.length)
+    foodObj.color = colors[random(colors.length - 1)] //get food's random color in colors array
 
-    foodObj.color = colors[index] //get food's random color in colors array
     this.coorX = coorX
     this.coorY = coorY
-    console.log(coorX, coorY)
     this.food = new Rect(this.coorX, this.coorY, size, size, foodObj.color)
 }
 
