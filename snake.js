@@ -7,16 +7,18 @@ var game = (function() {
         height: 500,
         color: '#fff'
     }
+
     var rectObj = {
         size: 20
     }
+
     var snakeObj = {
         length: 5,
         color: '#232323',
         direction: 83, //Init snake crawl direction [up:87 right:68 down:83 left:65]
         speed: 4,
-        crawling: false,
-        eated: false,
+        isCrawl: false,
+        isEat: false,
         body: []
     }
 
@@ -130,6 +132,7 @@ var game = (function() {
      * @param {Object} head snake head
      */
     function isHitWall(head) {
+        console.log(head)
         if (head.x >= mapObj.width || head.x < 0 || head.y >= mapObj.height || head.y < 0) return true
     }
 
@@ -139,12 +142,14 @@ var game = (function() {
      */
     function isHitSelf(body) {
         var head = body[0]
+        console.log(head)
         for (var i = 1; i < body.length; i++) {
             if (head.x === body[i].x && head.y === body[i].y) return true
         }
     }
 
     function isEat(head, food) {
+
         if (head.x === food.coorX && head.y === food.coorY) return true
     }
 
@@ -165,12 +170,11 @@ var game = (function() {
          */
         draw() {
             map.draw()
-            food.draw()
-
             var body = this.body
             for (var i = 0; i < body.length; i++) {
                 body[i].draw()
             }
+            food.draw()
         },
         /**
          * handle snake crawl
@@ -181,53 +185,52 @@ var game = (function() {
 
             // handle special
             if (isHitWall(head) || isHitSelf(body)) {
-                snakeObj.crawling = false
+                snakeObj.isCrawl = false
                 cancelAnimationFrame(crawlID)
 
                 alert('game over')
 
                 //restart game
-                new Food().draw()
-                new Snake().draw()
+                food = new Food()
+                food.draw()
+                snake = new Snake()
+                snake.draw()
                 return
             }
 
 
 
-            snakeObj.color = snakeObj.eated && foodObj.color ? foodObj.color : snakeObj.color
+            snakeObj.color = snakeObj.isEat && foodObj.color ? foodObj.color : snakeObj.color
 
-            var rect = new Rect(this.head.x, this.head.y, rectObj.size, rectObj.size, snakeObj.color)
-            this.body.splice(1, 0, rect)
-            this.body.pop()
+            var rect = new Rect(head.x, head.y, rectObj.size, rectObj.size, snakeObj.color)
+            body.splice(1, 0, rect)
+            body.pop()
 
             switch (snakeObj.direction) { // up:87 right:68 down:83 left:65
                 case 65:
-                    this.head.x -= this.head.w
+                    head.x -= head.w
                     break
                 case 87:
-                    this.head.y -= this.head.h
+                    head.y -= head.h
                     break
                 case 68:
-                    this.head.x += this.head.w
+                    head.x += head.w
                     break
                 case 83:
-                    this.head.y += this.head.h
+                    head.y += head.h
                     break
             }
 
-            this.draw()
-
             if (isEat(head, food)) {
-                snakeObj.eated = true
-                var rect = new Rect(food.coorX, food.coorY, this.head.w, this.head.h, foodObj.color)
-
+                snakeObj.isEat = true
+                var rect = new Rect(food.coorX, food.coorY, head.w, head.h, foodObj.color)
                 this.crawl()
-                this.body.push(rect)
-
+                body.push(rect)
                 food = new Food()
                 food.draw()
 
             }
+            this.draw()
         }
     }
 
@@ -244,7 +247,7 @@ var game = (function() {
     var fpsInterval = 1000 / snakeObj.speed
 
     function handleCrawl(now) {
-        if (snakeObj.crawling) {
+        if (snakeObj.isCrawl) {
             now = Date.now();　　
             elapsed = now - then
             if (elapsed > fpsInterval) {
@@ -264,11 +267,11 @@ var game = (function() {
             document.addEventListener('keydown', (e) => {
                 // control the snake crawl or stop
                 if (e.keyCode === 32) {
-                    if (snakeObj.crawling) {
-                        snakeObj.crawling = false
+                    if (snakeObj.isCrawl) {
+                        snakeObj.isCrawl = false
                         cancelAnimationFrame(crawlID)
                     } else {
-                        snakeObj.crawling = true
+                        snakeObj.isCrawl = true
                         requestAnimationFrame(handleCrawl)
                     }
                 }
