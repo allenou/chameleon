@@ -3,8 +3,8 @@ var game = (function() {
     var context = canvas.getContext('2d')
 
     var mapObj = {
-        width: 800,
-        height: 500,
+        width: 400,
+        height: 300,
         color: '#fff'
     }
 
@@ -19,7 +19,8 @@ var game = (function() {
         speed: 4,
         isCrawl: false,
         isEat: false,
-        body: []
+        body: [],
+        headColors:['red']
     }
 
     var foodObj = {
@@ -132,7 +133,7 @@ var game = (function() {
      * @param {Object} head snake head
      */
     function isHitWall(head) {
-        console.log(head)
+        // console.log(head)
         if (head.x >= mapObj.width || head.x < 0 || head.y >= mapObj.height || head.y < 0) return true
     }
 
@@ -142,7 +143,7 @@ var game = (function() {
      */
     function isHitSelf(body) {
         var head = body[0]
-        console.log(head)
+        // console.log(head)
         for (var i = 1; i < body.length; i++) {
             if (head.x === body[i].x && head.y === body[i].y) return true
         }
@@ -150,7 +151,9 @@ var game = (function() {
 
     function isEat(head, food) {
 
-        if (head.x === food.coorX && head.y === food.coorY) return true
+        if (head.x === food.coorX && head.y === food.coorY) {
+            return true
+        }
     }
 
     function Snake() {
@@ -161,7 +164,7 @@ var game = (function() {
         }
         this.body = body
         this.head = body[0]
-        this.head.color = "red"
+        this.head.color = snakeObj.headColors[0]
     }
 
     Snake.prototype = {
@@ -194,13 +197,14 @@ var game = (function() {
                 food = new Food()
                 food.draw()
                 snake = new Snake()
+            
                 snake.draw()
                 return
             }
 
 
 
-            snakeObj.color = snakeObj.isEat && foodObj.color ? foodObj.color : snakeObj.color
+            // snakeObj.color =  foodObj.color 
 
             var rect = new Rect(head.x, head.y, rectObj.size, rectObj.size, snakeObj.color)
             body.splice(1, 0, rect)
@@ -220,15 +224,15 @@ var game = (function() {
                     head.y += head.h
                     break
             }
-
-            if (isEat(head, food)) {
+            if (isEat(head, food)===true) {
                 snakeObj.isEat = true
-                var rect = new Rect(food.coorX, food.coorY, head.w, head.h, foodObj.color)
-                this.crawl()
-                body.push(rect)
+                snakeObj.headColors.push(foodObj.color)
+                this.head.color = snakeObj.headColors[0]  // set the color of the head to the color of the previous body
+                snakeObj.color = snakeObj.headColors[1]
+                snakeObj.headColors.splice(0,1)
+                  this.crawl()
                 food = new Food()
                 food.draw()
-
             }
             this.draw()
         }
