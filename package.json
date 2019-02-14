@@ -1,0 +1,9 @@
+{
+  "name": "chameleon",
+  "version": "1.0.0",
+  "description": "canvas game",
+  "main": "index.js",
+  "repository": "https://github.com/allenou/chameleon.git",
+  "author": "allenou <allenseac@gmail.com>",
+  "license": "MIT"
+}

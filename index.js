@@ -1,4 +1,4 @@
-var game = (function() {
+var game = (function () {
     var canvas = document.querySelector('#canvas')
     var context = canvas.getContext('2d')
 
@@ -13,19 +13,23 @@ var game = (function() {
     }
 
     var snakeObj = {
-        length: 5,
+        length: 7,
         color: '#232323',
         direction: 83, //Init snake crawl direction [up:87 right:68 down:83 left:65]
         speed: 4,
         isCrawl: false,
         isEat: false,
         body: [],
-        headColors:['red']
+        headColors: ['red']
     }
 
     var foodObj = {
         color: '',
         coorArr: []
+    }
+    var scoreObj = {
+        last: '',
+        high: ''
     }
 
 
@@ -61,16 +65,20 @@ var game = (function() {
      * map
      */
 
-    function Map() {}
+    function Map() {
+        this.width = mapObj.width
+        this.height = mapObj.height
+        this.color = mapObj.color
+    }
     Map.prototype = {
         draw() {
-            canvas.setAttribute('width', mapObj.width)
-            canvas.setAttribute('height', mapObj.height)
-            context.fillStyle = mapObj.color
+            canvas.setAttribute('width', this.width)
+            canvas.setAttribute('height', this.height)
+            context.fillStyle = this.color
             context.fill()
         },
         clear() {
-            context.clearRect(0, 0, mapObj.width, mapObj.height)
+            context.clearRect(0, 0, this.width, this.height)
         }
     }
     var map = new Map()
@@ -102,13 +110,11 @@ var game = (function() {
 
     function Food() {
         var size = rectObj.size
-        var coorX = randomCoor(mapObj.width, size)
-        var coorY = randomCoor(mapObj.height, size)
 
         foodObj.color = random(colors) //get food's random color in colors array
 
-        this.coorX = coorX
-        this.coorY = coorY
+        this.coorX = randomCoor(mapObj.width, size)
+        this.coorY = randomCoor(mapObj.height, size)
         this.food = new Rect(this.coorX, this.coorY, size, size, foodObj.color)
     }
 
@@ -128,39 +134,11 @@ var game = (function() {
     var snake
     var crawlID
 
-    /**
-     * @description
-     * @param {Object} head snake head
-     */
-    function isHitWall(head) {
-        // console.log(head)
-        if (head.x >= mapObj.width || head.x < 0 || head.y >= mapObj.height || head.y < 0) return true
-    }
-
-    /**
-     * @description
-     * @param {Object} body snake body
-     */
-    function isHitSelf(body) {
-        var head = body[0]
-        // console.log(head)
-        for (var i = 1; i < body.length; i++) {
-            if (head.x === body[i].x && head.y === body[i].y) return true
-        }
-    }
-
-    function isEat(head, food) {
-
-        if (head.x === food.coorX && head.y === food.coorY) {
-            return true
-        }
-    }
-
     function Snake() {
         var body = []
+        var size = rectObj.size
         for (var i = 0; i < snakeObj.length; i++) {
-            var rect = new Rect(mapObj.width / 2, i * rectObj.size, rectObj.size, rectObj.size, snakeObj.color)
-            body.splice(0, 0, rect); //add from scratch
+            body.splice(0, 0, new Rect(mapObj.width / 2, i * size, size, size, snakeObj.color)); //add from scratch
         }
         this.body = body
         this.head = body[0]
@@ -179,15 +157,27 @@ var game = (function() {
             }
             food.draw()
         },
+        isEat() {
+            return this.head.x === food.coorX && this.head.y === food.coorY
+        },
+        isHitWall() {
+            return this.head.x >= mapObj.width || this.head.x < 0 || this.head.y >= mapObj.height || this.head.y < 0
+        },
+        isHitSelf() {
+            var body = this.body
+            for (var i = 1; i < body.length; i++) {
+                if (this.head.x === body[i].x && this.head.y === body[i].y) return true
+            }
+        },
         /**
          * handle snake crawl
          */
         crawl() {
-            var body = this.body
+            // var body = this.body
             var head = this.head
 
-            // handle special
-            if (isHitWall(head) || isHitSelf(body)) {
+            // handle hit
+            if (this.isHitWall() || this.isHitSelf()) {
                 snakeObj.isCrawl = false
                 cancelAnimationFrame(crawlID)
 
@@ -197,9 +187,9 @@ var game = (function() {
                 food = new Food()
                 food.draw()
                 snake = new Snake()
-            
+
                 snake.draw()
-                return
+                return false
             }
 
 
@@ -207,8 +197,8 @@ var game = (function() {
             // snakeObj.color =  foodObj.color 
 
             var rect = new Rect(head.x, head.y, rectObj.size, rectObj.size, snakeObj.color)
-            body.splice(1, 0, rect)
-            body.pop()
+            this.body.splice(1, 0, rect)
+            this.body.pop()
 
             switch (snakeObj.direction) { // up:87 right:68 down:83 left:65
                 case 65:
@@ -224,15 +214,28 @@ var game = (function() {
                     head.y += head.h
                     break
             }
-            if (isEat(head, food)===true) {
-                snakeObj.isEat = true
+            if (this.isEat()) {
+                snakeObj.speed += this.body.length * 0.01 // change speed
+                console.log(document.querySelector('#score .text'))
+                document.querySelector('#score .text').textContent = Math.round(this.body.length * snakeObj.speed)
+                map.clear()
+                // map.draw()
+                snake.draw()
+                // snakeObj.isEat = true
+                this.body.push(food)
+
+                // change head and body color
                 snakeObj.headColors.push(foodObj.color)
                 this.head.color = snakeObj.headColors[0]  // set the color of the head to the color of the previous body
                 snakeObj.color = snakeObj.headColors[1]
-                snakeObj.headColors.splice(0,1)
-                  this.crawl()
+                snakeObj.headColors.splice(0, 1)
+                this.crawl()
+
+                // feeding new food
                 food = new Food()
                 food.draw()
+
+
             }
             this.draw()
         }
@@ -248,11 +251,12 @@ var game = (function() {
      * handle crawl speed
      */
     var elapsed, then = 0
-    var fpsInterval = 1000 / snakeObj.speed
+
 
     function handleCrawl(now) {
         if (snakeObj.isCrawl) {
-            now = Date.now();　　
+            var fpsInterval = 1000 / snakeObj.speed
+            now = Date.now();
             elapsed = now - then
             if (elapsed > fpsInterval) {
                 then = now - (elapsed % fpsInterval);
@@ -266,41 +270,37 @@ var game = (function() {
 
 
     return {
-        play: function() {
+        play: function () {
             // listen keywordlisten keyword
             document.addEventListener('keydown', (e) => {
                 // control the snake crawl or stop
                 if (e.keyCode === 32) {
-                    if (snakeObj.isCrawl) {
-                        snakeObj.isCrawl = false
-                        cancelAnimationFrame(crawlID)
-                    } else {
-                        snakeObj.isCrawl = true
-                        requestAnimationFrame(handleCrawl)
+                    snakeObj.isCrawl ? cancelAnimationFrame(crawlID) : requestAnimationFrame(handleCrawl)
+                    snakeObj.isCrawl = !snakeObj.isCrawl
+                }
+                if (snakeObj.isCrawl) {
+                    // control the snake crawl direction
+                    // up:87 right:68 down:83 left:65
+                    switch (e.keyCode) {
+                        case 65:
+                            if (snakeObj.direction !== 68)
+                                snakeObj.direction = 65
+                            break
+                        case 87:
+                            if (snakeObj.direction !== 83)
+                                snakeObj.direction = 87
+                            break
+                        case 68:
+                            if (snakeObj.direction !== 65)
+                                snakeObj.direction = 68
+                            break
+                        case 83:
+                            if (snakeObj.direction !== 87)
+                                snakeObj.direction = 83
+                            break
                     }
+                    e.preventDefault()
                 }
-
-                // control the snake crawl direction
-                // up:87 right:68 down:83 left:65
-                switch (e.keyCode) {
-                    case 65:
-                        if (snakeObj.direction !== 68)
-                            snakeObj.direction = 65
-                        break
-                    case 87:
-                        if (snakeObj.direction !== 83)
-                            snakeObj.direction = 87
-                        break
-                    case 68:
-                        if (snakeObj.direction !== 65)
-                            snakeObj.direction = 68
-                        break
-                    case 83:
-                        if (snakeObj.direction !== 87)
-                            snakeObj.direction = 83
-                        break
-                }
-                e.preventDefault()
             })
         }
     }

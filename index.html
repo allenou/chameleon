@@ -5,36 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>snake</title>
+    <link rel="icon" href="./favicon.ico">
+    <title>chameleon</title>
     <style>
         body {
             background-color: #212121;
         }
-        
+
         #container {
             width: 800px;
             height: 500px;
             margin: auto;
             padding-top: 50px;
         }
-        
+
+        #score {
+            font-size: 30px;
+            color: #fff;
+        }
+
+        #score p {
+            display: inline-block;
+            font-size: 50px;
+
+        }
+
         canvas {
             background-color: #fff;
         }
-        
+
         #tip {
             color: #fff;
         }
-        
+
         #tip ul {
             padding-left: 0;
         }
-        
+
         #tip li {
             margin-bottom: 8px;
             list-style: none;
         }
-        
+
         #tip i {
             padding: 0 4px;
             font-style: normal;
@@ -45,6 +57,10 @@
 
 <body>
     <div id="container">
+        <div id="score">
+            SCORE:
+            <p class="text">0</p>
+        </div>
         <canvas id="canvas"></canvas>
         <div id="tip">
             <ul>
@@ -52,11 +68,11 @@
                 <li>RIGHT<i>:</i>D</li>
                 <li>DOWN<i>:</i>S</li>
                 <li>LEFT<i>:</i>A</li>
-                <li>START/PAUSE<i>:</i>SPACE OR DIRECTION KEY</li>
+                <li>START/PAUSE<i>:</i>SPACE</li>
             </ul>
         </div>
     </div>
-    <script src="./snake.js"></script>
+    <script src="./index.js"></script>
 </body>
 
 </html>
